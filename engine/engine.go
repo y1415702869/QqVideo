@@ -67,6 +67,7 @@ func (e *Engine) withRes(res *[]byte) (int, error) {
 	if resJson.Ret != 0 {                      //error
 		return score, errors.New(fmt.Sprintf("积分签到失败,errCode:%d,errMsg:%s", resJson.Ret, resJson.Msg))
 	}
+	score = resJson.CheckinScore
 	return score, nil
 }
 

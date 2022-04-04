@@ -113,11 +113,7 @@ func (e *Engine) httpRequest(url, cookieStr, referer string, isGetVuSession bool
 		return nil, errors.New("登陆cookie失效")
 	}
 	//V力值签到
-	bytes, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-	return bytes, nil
+	return ioutil.ReadAll(res.Body)
 }
 
 type ResJson struct {

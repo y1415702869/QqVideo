@@ -9,7 +9,7 @@ import (
 
 func SendEmail(toEmail, subject, msg string) {
 	m := gomail.NewMessage()
-	m.SetHeader("From", mime.QEncoding.Encode("UTF-8", "腾讯视频Vip积分签到通知")+"<"+"admin@haomaim.cn"+">")
+	m.SetHeader("From", mime.QEncoding.Encode("UTF-8", "腾讯视频Vip积分签到通知")+"<"+config.EmailUsername+">")
 	m.SetHeader("To", toEmail, toEmail)
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", msg)

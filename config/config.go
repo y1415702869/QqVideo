@@ -9,6 +9,7 @@ var (
 	EmailPort       int
 	EmailUsername   string
 	EmailPass       string
+	NotifyEmail     string
 )
 
 func InitConfig() error {
@@ -27,6 +28,7 @@ func loadEmailConfig(file *ini.File) { //加载email服务配置
 	EmailUsername = file.Section("email").Key("Username").MustString("")
 	EmailPort = file.Section("email").Key("Port").MustInt(465)
 	EmailPass = file.Section("email").Key("Pass").MustString("")
+	NotifyEmail = file.Section("email").Key("NotifyEmail").MustString("")
 }
 
 func loadCookieConfig(file *ini.File) { //加载qq video cookie

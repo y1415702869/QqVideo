@@ -17,8 +17,7 @@ const (
 	LoginUrl = "https://access.video.qq.com/user/auth_refresh?vappid=11059694&vsecret=" +
 		"fdf61a6be0aad57132bc5cdf78ac30145b6cd2c1470b0cfe&type=qq&g_tk=&g_vstk=649650180&g_actk=1299537010&callback=" +
 		"jQuery19102408648260124442_1648355235495&_=1648355235496"
-	ReqUrl      = "https://vip.video.qq.com/fcgi-bin/comm_cgi?name=hierarchical_task_system&cmd=2"
-	NotifyEmail = "1784605674@qq.com"
+	ReqUrl = "https://vip.video.qq.com/fcgi-bin/comm_cgi?name=hierarchical_task_system&cmd=2"
 )
 
 var JsonReg = regexp.MustCompile(`QZOutputJson=\((.*)\);`)
@@ -33,25 +32,25 @@ func (e *Engine) Run(cookie string) {
 	vuSession, err := e.getVqqVuSession()
 	if err != nil {
 		log.Println(err)
-		email.SendEmail(NotifyEmail, "登陆cookie失效", err.Error())
+		email.SendEmail(config.NotifyEmail, "登陆cookie失效", err.Error())
 		return
 	}
 	bytes, err := e.httpReq(vuSession)
 	if err != nil {
 		log.Println(err)
-		email.SendEmail(NotifyEmail, "签到请求失败", err.Error())
+		email.SendEmail(config.NotifyEmail, "签到请求失败", err.Error())
 		return
 	}
 	score, err := e.withRes(&bytes)
 	if err != nil {
 		log.Println(err)
-		email.SendEmail(NotifyEmail, "签到请求结果处理失败", err.Error())
+		email.SendEmail(config.NotifyEmail, "签到请求结果处理失败", err.Error())
 		return
 	}
-	email.SendEmail(NotifyEmail,
+	email.SendEmail(config.NotifyEmail,
 		"签到成功",
 		fmt.Sprintf("获得积分:%d<br/>签到时间:%s",
-			score, time.Now().Format("2006-01-02 15:04:05")))
+			score, time.Now().Local().Format("2006-01-02 15:04:05")))
 	log.Println("签到成功,获得积分:", score)
 }
 

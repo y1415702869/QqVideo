@@ -3,13 +3,12 @@ package config
 import "gopkg.in/ini.v1"
 
 var (
-	QqVideoCookie   string
-	VuSessionCookie string
-	EmailHost       string
-	EmailPort       int
-	EmailUsername   string
-	EmailPass       string
-	NotifyEmail     string
+	QqVideoCookie string
+	EmailHost     string
+	EmailPort     int
+	EmailUsername string
+	EmailPass     string
+	NotifyEmail   string
 )
 
 func InitConfig() error {
@@ -33,5 +32,4 @@ func loadEmailConfig(file *ini.File) { //加载email服务配置
 
 func loadCookieConfig(file *ini.File) { //加载qq video cookie
 	QqVideoCookie = file.Section("cookie").Key("QqVideoCookie").MustString("")
-	VuSessionCookie = file.Section("cookie").Key("VuSessionCookie").MustString("")
 }

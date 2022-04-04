@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -20,25 +21,28 @@ const (
 	ReqUrl = "https://vip.video.qq.com/fcgi-bin/comm_cgi?name=hierarchical_task_system&cmd=2"
 )
 
-var JsonReg = regexp.MustCompile(`QZOutputJson=\((.*)\);`)
+var (
+	JsonReg                = regexp.MustCompile(`QZOutputJson=\((.*)\);`)
+	FindCookieVuSessionReg = regexp.MustCompile(`vqq_vusession=([^;]*){1}`)
+)
 
 type Engine struct {
-	videoCookie string
+	videoCookie     string //login cookie
+	vuSessionCookie string //签到cookie
 }
 
 // Run 启动签到
 func (e *Engine) Run(cookie string) {
 	e.videoCookie = cookie
-	vuSession, err := e.getVqqVuSession()
-	if err != nil {
+	if err := e.getVuSessionCookie(); err != nil {
 		log.Println(err)
-		email.SendEmail(config.NotifyEmail, "登陆cookie失效", err.Error())
+		email.SendEmail(config.NotifyEmail, "cookie解析出错", err.Error())
 		return
 	}
-	bytes, err := e.httpReq(vuSession)
+	bytes, err := e.httpRequest(ReqUrl, e.vuSessionCookie, "https://m.v.qq.com", false)
 	if err != nil {
 		log.Println(err)
-		email.SendEmail(config.NotifyEmail, "签到请求失败", err.Error())
+		email.SendEmail(config.NotifyEmail, "获取V力值请求失败", err.Error())
 		return
 	}
 	score, err := e.withRes(&bytes)
@@ -54,60 +58,61 @@ func (e *Engine) Run(cookie string) {
 	log.Println("签到成功,获得积分:", score)
 }
 
-//处理结果
+//getVuSessionCookie get VuSession
+func (e *Engine) getVuSessionCookie() error {
+	findVuSession := FindCookieVuSessionReg.FindStringSubmatch(e.videoCookie)
+	if len(findVuSession) != 2 {
+		return errors.New("cookie错误")
+	}
+	//替换成sprint string
+	vuSessionCookieSprint := strings.Replace(e.videoCookie, findVuSession[1], "%s", 1)
+	vuSession, err := e.httpRequest(LoginUrl, e.videoCookie, "https://v.qq.com", true)
+	if err != nil {
+		return err
+	}
+	//获取v力值cookie获取成功
+	e.vuSessionCookie = fmt.Sprintf(vuSessionCookieSprint, string(vuSession))
+	return nil
+}
+
+//处理V力值签到结果
 func (e *Engine) withRes(res *[]byte) (int, error) {
-	var score int
 	RegSub := JsonReg.FindStringSubmatch(string(*res))
 	if len(RegSub) != 2 {
-		return score, errors.New(fmt.Sprintf("返回数据解析失败,返回数据:%s", string(*res)))
+		return 0, errors.New(fmt.Sprintf("返回数据解析失败,返回数据:%s", string(*res)))
 	}
 
 	resJson := e.formatJson([]byte(RegSub[1])) //转换数据格式
 	if resJson.Ret != 0 {                      //error
-		return score, errors.New(fmt.Sprintf("积分签到失败,errCode:%d,errMsg:%s", resJson.Ret, resJson.Msg))
+		return 0, errors.New(fmt.Sprintf("积分签到失败,errCode:%d,errMsg:%s", resJson.Ret, resJson.Msg))
 	}
-	score = resJson.CheckinScore
-	return score, nil
+	return resJson.CheckinScore, nil
 }
 
-//获取vqq vu session
-func (e *Engine) getVqqVuSession() (string, error) {
+//httpRequest network request
+func (e *Engine) httpRequest(url, cookieStr, referer string, isGetVuSession bool) ([]byte, error) {
 	client := http.Client{}
-	req, err := http.NewRequest("GET", LoginUrl, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	req.Header.Set("cookie", e.videoCookie)
-	req.Header.Set("referer", "https://v.qq.com")
+	req.Header.Set("cookie", cookieStr)
+	req.Header.Set("referer", referer)
 	req.Header.Set("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36")
 	res, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer res.Body.Close()
-	for _, cookie := range res.Cookies() {
-		if cookie.Name == "vqq_vusession" {
-			return cookie.Value, nil
+	if isGetVuSession { //get vqq_vusession
+		for _, cookie := range res.Cookies() {
+			if cookie.Name == "vqq_vusession" {
+				return []byte(cookie.Value), nil
+			}
 		}
+		return nil, errors.New("登陆cookie失效")
 	}
-	return "", errors.New("登陆cookie失效")
-}
-
-//发起请求
-func (e *Engine) httpReq(vuSession string) ([]byte, error) {
-	client := http.Client{}
-	req, err := http.NewRequest("GET", ReqUrl, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("cookie", fmt.Sprintf(config.VuSessionCookie, vuSession))
-	req.Header.Set("referer", "https://m.v.qq.com")
-	req.Header.Set("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36")
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	//V力值签到
 	bytes, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err

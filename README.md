@@ -7,8 +7,7 @@
 [cookie]
 #腾讯视频登陆后的cookie(获取方法在下面)
 QqVideoCookie = ``
-#和上面是同一个cookie,vqq_vusession=xxx替换成vqq_vusession=%s即可
-VuSessionCookie = `...vqq_vusession=%s;.....`
+
 [email]
 Host = smtp.exmail.qq.com
 Port = 465

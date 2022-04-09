@@ -21,25 +21,23 @@ func GoTask() {
 	time.Local = cstSh
 	c := cron.New(cron.WithSeconds(), cron.WithLocation(cstSh))
 
-	go func(c *cron.Cron, e *Engine) {
-		runTask(c, e, &Params{
-			Cookie:        config.QqVideoCookie,
-			ReqUrl:        SignUrl,
-			EmailSubject:  "每日签到",
-			NotifyMsg:     "获得V力值:%d",
-			WithResErrMsg: "每日签到失败",
-		}, SignTimeRule)
-	}(c, e)
+	//every day sign
+	go runTask(c, e, &Params{
+		Cookie:        config.QqVideoCookie,
+		ReqUrl:        SignUrl,
+		EmailSubject:  "每日签到",
+		NotifyMsg:     "获得V力值:%d",
+		WithResErrMsg: "每日签到失败",
+	}, SignTimeRule)
 
-	go func(c *cron.Cron, e *Engine) {
-		runTask(c, e, &Params{
-			Cookie:        config.QqVideoCookie,
-			ReqUrl:        Minutes60Url,
-			EmailSubject:  "观看视频满60分钟",
-			NotifyMsg:     "获得V力值:%d",
-			WithResErrMsg: "看60分钟V力值获取失败",
-		}, Minutes60TimeRule)
-	}(c, e)
+	//Minutes60
+	go runTask(c, e, &Params{
+		Cookie:        config.QqVideoCookie,
+		ReqUrl:        Minutes60Url,
+		EmailSubject:  "观看视频满60分钟",
+		NotifyMsg:     "获得V力值:%d",
+		WithResErrMsg: "看60分钟V力值获取失败",
+	}, Minutes60TimeRule)
 
 	log.Println("服务已启动...")
 

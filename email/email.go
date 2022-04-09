@@ -2,9 +2,11 @@ package email
 
 import (
 	"QqVideo/config"
+	"fmt"
 	"gopkg.in/gomail.v2"
 	"log"
 	"mime"
+	"time"
 )
 
 func SendEmail(toEmail, subject, msg string) {
@@ -12,7 +14,7 @@ func SendEmail(toEmail, subject, msg string) {
 	m.SetHeader("From", mime.QEncoding.Encode("UTF-8", "腾讯视频Vip积分签到通知")+"<"+config.EmailUsername+">")
 	m.SetHeader("To", toEmail, toEmail)
 	m.SetHeader("Subject", subject)
-	m.SetBody("text/html", msg)
+	m.SetBody("text/html", fmt.Sprintf("%s<br/>处理时间:%s", msg, time.Now().Local().Format("2006-01-02 15:04:05")))
 
 	d := gomail.NewDialer(config.EmailHost, config.EmailPort, config.EmailUsername, config.EmailPass)
 

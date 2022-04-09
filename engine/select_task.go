@@ -37,6 +37,7 @@ func GoTask() {
 		EmailSubject:  "观看视频满60分钟",
 		NotifyMsg:     "获得V力值:%d",
 		WithResErrMsg: "看60分钟V力值获取失败",
+		ScoreDefine:   10, //这个V力值只会是10
 	}, Minutes60TimeRule)
 
 	log.Println("服务已启动...")

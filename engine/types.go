@@ -6,4 +6,5 @@ type Params struct {
 	EmailSubject  string
 	NotifyMsg     string
 	WithResErrMsg string
+	ScoreDefine   int
 }

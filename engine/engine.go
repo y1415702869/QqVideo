@@ -51,6 +51,9 @@ func (e *Engine) Run(params *Params) {
 		email.SendEmail(config.NotifyEmail, params.WithResErrMsg, err.Error())
 		return
 	}
+	if params.ScoreDefine > 0 { //提前设置好积分
+		score = params.ScoreDefine
+	}
 	email.SendEmail(config.NotifyEmail,
 		params.EmailSubject,
 		fmt.Sprintf(params.NotifyMsg,

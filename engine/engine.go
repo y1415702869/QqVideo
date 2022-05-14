@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	LoginUrl = "https://access.video.qq.com/user/auth_refresh?vappid=11059694&vsecret=" +
-		"fdf61a6be0aad57132bc5cdf78ac30145b6cd2c1470b0cfe&type=qq&g_tk=&g_vstk=649650180&g_actk=1299537010&callback=" +
-		"jQuery19102408648260124442_1648355235495&_=1648355235496"
+	LoginUrl = "https://access.video.qq.com/user/auth_refresh?vappid=11059694&vsecret" +
+		"=fdf61a6be0aad57132bc5cdf78ac30145b6cd2c1470b0cfe&type=qq&g_tk=&g_vstk=193098601&" +
+		"g_actk=868302160&callback=jQuery19109094431082916621_1652509253929&_=1652509253930"
 	SignUrl      = "https://vip.video.qq.com/fcgi-bin/comm_cgi?name=hierarchical_task_system&cmd=2"   //sign url
 	Minutes60Url = "https://vip.video.qq.com/fcgi-bin/comm_cgi?name=spp_MissionFaHuo&cmd=4&task_id=1" //60 minutes
 )
@@ -35,7 +35,6 @@ type Engine struct {
 func (e *Engine) Run(params *Params) {
 	e.videoCookie = params.Cookie
 	if err := e.getVuSessionCookie(); err != nil {
-		log.Println(err)
 		email.SendEmail(config.NotifyEmail, "cookie解析出错", err.Error())
 		return
 	}
@@ -69,7 +68,7 @@ func (e *Engine) getVuSessionCookie() error {
 	}
 	//替换成sprint string
 	vuSessionCookieSprint := strings.Replace(e.videoCookie, findVuSession[1], "%s", 1)
-	vuSession, err := e.httpRequest(LoginUrl, e.videoCookie, "https://v.qq.com", true)
+	vuSession, err := e.httpRequest(LoginUrl, e.videoCookie, "https://film.qq.com/", true)
 	if err != nil {
 		return err
 	}

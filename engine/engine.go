@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -88,7 +89,8 @@ func (e *Engine) withRes(res *[]byte) (int, error) {
 	if resJson.Ret != 0 {                      //error
 		return 0, errors.New(fmt.Sprintf("V力值获取失败,errCode:%d,errMsg:%s", resJson.Ret, resJson.Msg))
 	}
-	return resJson.CheckinScore, nil
+	score, _ := strconv.Atoi(resJson.CheckinScore)
+	return score, nil
 }
 
 //httpRequest network request
@@ -120,7 +122,7 @@ func (e *Engine) httpRequest(url, cookieStr, referer string, isGetVuSession bool
 
 type ResJson struct {
 	Ret          int    `json:"ret"`
-	CheckinScore int    `json:"checkin_score"`
+	CheckinScore string `json:"checkin_score"`
 	Msg          string `json:"msg"`
 }
 

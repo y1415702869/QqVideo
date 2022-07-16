@@ -21,7 +21,6 @@ func GoTask() {
 	e := &Engine{}
 	time.Local = cstSh
 	c := cron.New(cron.WithSeconds(), cron.WithLocation(cstSh))
-
 	//every day sign
 	go runTask(c, e, &Params{
 		Cookie:        config.QqVideoCookie,

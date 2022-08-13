@@ -15,9 +15,8 @@ import (
 )
 
 const (
-	LoginUrl = "https://access.video.qq.com/user/auth_refresh?vappid=11059694&vsecret" +
-		"=fdf61a6be0aad57132bc5cdf78ac30145b6cd2c1470b0cfe&type=qq&g_tk=&g_vstk=193098601&" +
-		"g_actk=868302160&callback=jQuery19109094431082916621_1652509253929&_=1652509253930"
+	LoginUrl = "https://access.video.qq.com/user/auth_refresh?vappid=11059694&vsecret=fdf61a6be0aad57132bc5cdf78ac30145b6cd2c1470b0cfe&type" +
+		"=qq&g_tk=&g_vstk=363833841&g_actk=382330955&callback=jQuery19108399751114128995_1660375409396&_=1660375409397"
 	SignUrl      = "https://vip.video.qq.com/fcgi-bin/comm_cgi?name=hierarchical_task_system&cmd=2"   //sign url
 	Minutes60Url = "https://vip.video.qq.com/fcgi-bin/comm_cgi?name=spp_MissionFaHuo&cmd=4&task_id=1" //60 minutes
 )
